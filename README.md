@@ -1,6 +1,6 @@
 # Proof of Concept: Serverless Web Backend on AWS
 
-This project demonstrates how to build a proof of concept for a serverless solution on AWS. The solution is designed for a customer selling cleaning supplies, requiring a scalable architecture that handles spikes in demand while ensuring decoupled application components.
+This project demonstrates how to build a proof of concept for a serverless solution on AWS. The solution is designed for a customer selling cleaning supplies, requiring a scalable architecture that handles spikes in demand while ensuring decoupled application components. These steps are part of a lab in an AWS Solutions Architect Associate preparation course.
 
 ## Architecture Overview
 
@@ -14,7 +14,8 @@ The architecture consists of the following components:
 6. **Amazon SNS**: Sends a notification to a specified email address.
 
 ## Table of Contents
-
+- [Introduction](#introduction)
+- [Architecture Diagram](#architecture-diagram)
 - [Setup](#setup)
   - [Task 1: Creating IAM Policies and Roles](#task-1-creating-iam-policies-and-roles)
   - [Task 2: Creating a DynamoDB Table](#task-2-creating-a-dynamodb-table)
@@ -26,6 +27,14 @@ The architecture consists of the following components:
   - [Task 8: Creating an API with Amazon API Gateway](#task-8-creating-an-api-with-amazon-api-gateway)
   - [Task 9: Testing the Architecture](#task-9-testing-the-architecture)
   - [Task 10: Cleaning Up](#task-10-cleaning-up)
+
+## Introduction
+
+This README provides step-by-step instructions to set up a serverless backend on AWS for a business dealing in cleaning supplies. The solution is scalable, cost-effective, and designed to handle unpredictable spikes in traffic by decoupling key components.
+
+## Architecture Diagram
+
+Image Add....................
 
 ## Setup
 
