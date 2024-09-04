@@ -223,4 +223,73 @@ def lambda_handler(event, context):
   - Endpoint: Your email address
 3. Confirm the subscription via the email you receive.
 
+### Task 7: Creating a Lambda Function to Publish a Message to the SNS Topic
+
+#### Step 7.1: Creating the POC-Lambda-2 Function
+
+1. Navigate to the AWS Management Console and search for **Lambda**.
+2. Click **Create function** and configure the following settings:
+   - **Function name**: `POC-Lambda-2`
+   - **Runtime**: `Python 3.9`
+   - **Existing role**: Select `Lambda-DynamoDBStreams-SNS`
+3. Click **Create function**.
+
+#### Step 7.2: Setting Up DynamoDB as a Trigger
+
+1. In the **Function overview** section of the Lambda console, click **Add trigger**.
+2. Choose **DynamoDB** from the list of services.
+3. Select the `orders` table as the trigger source.
+4. Click **Add** to finalize the trigger setup.
+
+#### Step 7.3: Configuring the Lambda Function
+
+1. In the **Code** tab of the Lambda console, replace the default code with the following:
+
+    ```python
+    import boto3, json
+
+    client = boto3.client('sns')
+
+    def lambda_handler(event, context):
+        for record in event['Records']:
+            message = json.dumps(record['dynamodb']['NewImage'], indent=4)
+            client.publish(
+                TopicArn='arn:aws:sns:your-region:your-account-id:POC-Topic',
+                Message=message,
+                Subject='New Order Notification'
+            )
+    ```
+
+2. Replace `arn:aws:sns:your-region:your-account-id:POC-Topic` with the actual ARN of your SNS topic.
+3. Click **Deploy** to save and deploy the function.
+
+### Task 8: Creating an API with Amazon API Gateway
+
+1. Search for **API Gateway** in the AWS Management Console and select **Create API**.
+2. Configure the following settings:
+   - **API name**: `POC-API`
+   - **API Type**: `REST API`
+3. In the **Resources** section, create a **POST** method.
+4. Integrate this method with the `POC-Queue` in SQS.
+5. Deploy the API.
+
+### Task 9: Testing the Architecture
+
+1. Use **Postman** or **cURL** to send a POST request to your API Gateway endpoint.
+2. Verify that a new entry is created in the DynamoDB table.
+3. Check that an email notification is sent via SNS.
+
+### Task 10: Cleaning Up
+
+To avoid unnecessary charges, delete the following resources:
+
+- Lambda functions
+- SQS queue
+- DynamoDB table and streams
+- SNS topic
+- API Gateway API
+- IAM policies and roles
+
+This serverless architecture provides a scalable solution for processing orders and notifications. Although this is a proof of concept, the principles and components can be expanded to suit production environments.
+
 
