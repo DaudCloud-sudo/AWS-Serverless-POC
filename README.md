@@ -163,6 +163,8 @@ To follow best practices, create custom IAM policies and roles to grant limited 
     - Paste the ARN of the `Lambda-SQS-DynamoDB` role.
 3. Click **Create queue**.
 
+![image](https://github.com/user-attachments/assets/3cb0991f-2108-4c45-9b47-d88d667c12a2)
+
 ### Task 4: Creating a Lambda Function and Setting Up Triggers
 
 #### Step 4.1: Creating the Lambda Function
@@ -180,6 +182,8 @@ To follow best practices, create custom IAM policies and roles to grant limited 
 1. In the Function overview section, click **Add trigger**.
 2. Choose SQS as the trigger service and select `POC-Queue`.
 3. Click **Add**.
+
+![image](https://github.com/user-attachments/assets/4b4ed5f3-902d-4154-b1e9-cc2c3aefcd77)
 
 #### Step 4.3: Adding and Deploying Function Code
 
@@ -205,11 +209,16 @@ def lambda_handler(event, context):
 2. Save and run the test.
 3. Verify the test result and confirm the entry in the DynamoDB table.
 
+![image](https://github.com/user-attachments/assets/75354823-c014-4b6c-b7d4-c270943cc5ad)
+![image](https://github.com/user-attachments/assets/a5742cf6-8e55-4582-86c4-75278c2769c5)
+
 ### Task 5: Enabling DynamoDB Streams
 
 1. In the DynamoDB console, select the `orders` table.
 2. Go to the Exports and streams tab.
 3. Enable DynamoDB Streams with the New image view type.
+
+![image](https://github.com/user-attachments/assets/f46af974-da99-4e78-883a-1b45822c801e)
 
 ### Task 6: Creating an SNS Topic and Setting Up Subscriptions
 
@@ -229,6 +238,8 @@ def lambda_handler(event, context):
   - Endpoint: Your email address
 3. Confirm the subscription via the email you receive.
 
+![image](https://github.com/user-attachments/assets/808799ab-d02e-4912-9ebf-4d55329699c4)
+
 ### Task 7: Creating a Lambda Function to Publish a Message to the SNS Topic
 
 #### Step 7.1: Creating the POC-Lambda-2 Function
@@ -246,6 +257,8 @@ def lambda_handler(event, context):
 2. Choose **DynamoDB** from the list of services.
 3. Select the `orders` table as the trigger source.
 4. Click **Add** to finalize the trigger setup.
+
+![image](https://github.com/user-attachments/assets/ecbc0391-2775-4f87-8ded-958e6fb07334)
 
 #### Step 7.3: Configuring the Lambda Function
 
@@ -269,32 +282,134 @@ def lambda_handler(event, context):
 2. Replace `arn:aws:sns:your-region:your-account-id:POC-Topic` with the actual ARN of your SNS topic.
 3. Click **Deploy** to save and deploy the function.
 
+#### Step 7.4: Testing the POC-Lambda-2 Lambda function
+
+1. On the **Test** tab, create a new event and for Event name, enter `POC-Lambda-Test-2`.
+2. For Template-optional, enter DynamoDB and from the list, choose DynamoDB-Update.
+3. The DynamoDB template appears in the Event JSON box.
+4. Save your changes and choose **Test**.
+
+After the Lambda function successfully runs, the “Execution result: succeeded” message should appear in the notification banner in the Test section. In a few minutes, an email message should arrive at the email address that you specified in the previous task. Confirm that you received the subscription email message. If needed, check both your inbox and spam folder.
+
+![image](https://github.com/user-attachments/assets/ddfaf06a-ff73-4df5-8dab-51ed57ec70b7)
+
 ### Task 8: Creating an API with Amazon API Gateway
 
-1. Search for **API Gateway** in the AWS Management Console and select **Create API**.
-2. Configure the following settings:
+In this task, you will create a REST API in Amazon API Gateway. This API serves as a communication gateway between your application and the AWS services.
+
+1. In the AWS Management Console, search for and open **API Gateway**.
+2. On the **REST API** card with public authentication, choose **Build** and configure the following settings:
+   - **Choose the protocol**: REST
+   - **Create new API**: New API
    - **API name**: `POC-API`
-   - **API Type**: `REST API`
-3. In the **Resources** section, create a **POST** method.
-4. Integrate this method with the `POC-Queue` in SQS.
-5. Deploy the API.
+   - **Endpoint Type**: Regional
+   - Choose **Create API**.
 
-### Task 9: Testing the Architecture
+3. On the **Actions** menu, choose **Create Method**.
+4. Open the method menu by choosing the down arrow, and choose **POST**. Save your changes by choosing the check mark.
+5. In the **POST - Setup** pane, configure the following settings:
+   - **Integration type**: AWS Service
+   - **AWS Region**: us-east-1
+   - **AWS Service**: Simple Queue Service (SQS)
+   - **AWS Subdomain**: Keep empty
+   - **HTTP method**: POST
+   - **Action Type**: Use path override
+   - **Path override**: Enter your account ID followed by a slash (/) and the name of the `POC-Queue`
+     - Note: If `POC-Queue` is the name of the SQS queue that you created, this entry might look similar to the following: `/<account ID>/POC-Queue`
+   - **Execution role**: Paste the ARN of the `APIGateway-SQS` role
+     - Note: For example, the ARN might look like the following: `arn:aws:iam::<account ID>:role/APIGateway-SQS`
+   - **Content Handling**: Passthrough
+   - Save your changes.
 
-1. Use **Postman** or **cURL** to send a POST request to your API Gateway endpoint.
-2. Verify that a new entry is created in the DynamoDB table.
-3. Check that an email notification is sent via SNS.
+6. Choose the **Integration Request** card.
+7. Scroll to the bottom of the page and expand **HTTP Headers**.
+   - Choose **Add header**.
+   - For **Name**, enter `Content-Type`.
+   - For **Mapped from**, enter `'application/x-www-form-urlencoded'`.
+   - Save your changes to the **HTTP Headers** section by choosing the check mark.
+
+8. Expand **Mapping Templates** and for **Request body passthrough**, choose **Never**.
+   - Choose **Add mapping template** and for **Content-Type**, enter `application/json`.
+   - Save your changes by choosing the check mark.
+
+9. For **Generate template**, do not choose a default template from the list. Instead, enter the following command: `Action=SendMessage&MessageBody=$input.body` in the box.
+   - Choose **Save**.
+  
+![image](https://github.com/user-attachments/assets/518fc876-966e-4d4f-aa5c-7e070856fe27)
+
+### Task 9: Testing the Architecture by Using API Gateway
+
+In this task, you will use API Gateway to send mock data to Amazon SQS as a proof of concept for the serverless solution.
+
+1. In the API Gateway console, return to the **POST - Method Execution** page and choose **Test**.
+2. In the **Request Body** box, enter:
+    ```json
+    {
+        "item": "latex gloves",
+        "customerID": "12345"
+    }
+    ```
+3. Choose **Test**.
+
+![image](https://github.com/user-attachments/assets/b758dc69-747a-4955-b6bb-eeeac964f023)
+
+4. Verification in DynamoDB Table.
+
+![image](https://github.com/user-attachments/assets/9ff97686-3104-4182-8fa8-88ba47cbf064)
+
+   - If you see the "Successfully completed execution" message with the 200 response in the logs on the right, you will receive an email notification with the new entry. If you don’t receive an email but the new item appears in the DynamoDB table, troubleshoot the exercise instructions starting from after you set up DynamoDB. Ensure that you deploy all resources in the `us-east-1` Region.
+
+   - After API Gateway successfully processes the request pasted in the **Request Body** box, it places the request in the SQS queue. Amazon SQS, set up as a trigger in the first Lambda function, invokes the function call. The Lambda function code places the new entry into the DynamoDB table. DynamoDB Streams captures this change to the database and invokes the second AWS Lambda function. This function retrieves the new record from DynamoDB Streams and sends it to Amazon SNS. Amazon SNS then sends you an email notification.
 
 ### Task 10: Cleaning Up
 
-To avoid unnecessary charges, delete the following resources:
+In this task, you will delete the AWS resources that you created for this exercise.
 
-- Lambda functions
-- SQS queue
-- DynamoDB table and streams
-- SNS topic
-- API Gateway API
-- IAM policies and roles
+1. **Delete the DynamoDB table:**
+   - Open the DynamoDB console.
+   - In the navigation pane, choose **Tables**.
+   - Select the `orders` table.
+   - Choose **Delete** and confirm your actions.
+
+2. **Delete the Lambda functions:**
+   - Open the Lambda console.
+   - Select the Lambda functions that you created in this exercise: `POC-Lambda-1` and `POC-Lambda-2`.
+   - Choose **Actions**, then **Delete**.
+   - Confirm your actions and close the dialog box.
+
+3. **Delete the SQS queue:**
+   - Open the Amazon SQS console.
+   - Select the queue that you created in this exercise.
+   - Choose **Delete** and confirm your actions.
+
+4. **Delete the SNS topic and subscriptions:**
+   - Open the Amazon SNS console.
+   - In the navigation pane, choose **Topics**.
+   - Select `POC-Topic`.
+   - Choose **Delete** and confirm your actions.
+   - In the navigation pane, choose **Subscriptions**.
+   - Select the subscription that you created in this exercise and choose **Delete**.
+   - Confirm your actions.
+
+5. **Delete the API that you created:**
+   - Open the API Gateway console.
+   - Select `POC-API`.
+   - Choose **Actions**, then **Delete**.
+   - Confirm your actions.
+
+6. **Delete the IAM roles and policies:**
+   - Open the IAM console.
+   - In the navigation pane, choose **Roles**.
+   - Delete the following roles and confirm your actions:
+     - `APIGateway-SQS`
+     - `Lambda-SQS-DynamoDB`
+     - `Lambda-DynamoDBStreams-SNS`
+   - In the navigation pane, choose **Policies**.
+   - Delete the following custom policies and confirm your actions:
+     - `Lambda-DynamoDBStreams-Read`
+     - `Lambda-SNS-Publish`
+     - `Lambda-Write-DynamoDB`
+     - `Lambda-Read-SQS`
 
 This serverless architecture provides a scalable solution for processing orders and notifications. Although this is a proof of concept, the principles and components can be expanded to suit production environments.
 
