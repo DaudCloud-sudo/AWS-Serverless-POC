@@ -34,7 +34,7 @@ This README provides step-by-step instructions to set up a serverless backend on
 
 ## Architecture Diagram
 
-Image Add....................
+![image](https://github.com/user-attachments/assets/92b514f0-3a40-4ae2-ae66-c5a52bba2d9c)
 
 ## Setup
 
@@ -117,6 +117,8 @@ To follow best practices, create custom IAM policies and roles to grant limited 
     ]
 }
 ```
+![image](https://github.com/user-attachments/assets/d839f646-c20a-4fcc-babf-203dd6c26ba3)
+
 #### Step 1.2: Creating IAM Roles and Attaching Policies
 
 1. In the IAM console, navigate to **Roles**.
@@ -136,6 +138,8 @@ To follow best practices, create custom IAM policies and roles to grant limited 
 - Trusted entity type: **AWS service**
 - Common use case: **API Gateway**
 - Attach policies: `AmazonAPIGatewayPushToCloudWatchLogs`
+
+![image](https://github.com/user-attachments/assets/db702161-4d98-446e-af2f-d77a2d583337)
 
 ### Task 2: Creating a DynamoDB Table
 
