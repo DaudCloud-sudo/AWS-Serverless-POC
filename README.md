@@ -149,6 +149,8 @@ To follow best practices, create custom IAM policies and roles to grant limited 
   - Partition key: `orderID` (String)
 3. Keep other settings as default and click **Create table**.
 
+![image](https://github.com/user-attachments/assets/5c2df964-bf40-4a98-b2de-bcdaebfe4483)
+
 ### Task 3: Creating an SQS Queue
 
 1. Search for SQS in the AWS Management Console and select **Create queue**.
